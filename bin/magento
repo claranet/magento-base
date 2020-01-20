@@ -1,0 +1,7 @@
+#!/bin/bash
+# Magento cmd warpper
+# Runs Magento CLI with user www-data to get the right permissions
+#
+#
+
+su www-data --preserve-environment  -s /bin/sh -c "${DOCUMENT_ROOT}/bin/magento $*"

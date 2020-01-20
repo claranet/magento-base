@@ -1,0 +1,135 @@
+#!/bin/bash
+
+MAGENTOCMD="/usr/local/bin/magento "
+WWW_SERVICE=$(kubectl get service -l job=web -o "jsonpath={.items[0].metadata.name}")
+
+
+function print_help {
+cat <<EOF
+  magento:varnish [on|off]              Enable/Disable varnish cache (Will only switch Ingress to Magento or Varnish service)
+  magento:varnish:configure             Dump magento varnish configuration and configure varnish
+  magento:maintenance         [on|off]  Set Magento to Maintenance
+  magento:cleancache                    Clean Magento Cache and remove generated files
+  fixpermissions                        Fix file and directory permissions in DOCUMENT_ROOT
+  magento:log:report <NUMBER>               Output error-log from var/report/<number>
+EOF
+}
+
+# Set Magento to Maintenance mode or disable it
+# usage: magentocn magento:maintenance [on|off]
+function magento_maintenance {
+  VRNSH_SVC=$(kubectl get service -l app=varnish -o "jsonpath={.items[0].metadata.name}")
+
+  if [[ "$1" == "on" ]]; then
+    echo "Enable Maintenance page"
+    VRNSH_SVC=$(kubectl get service -l app=varnish -o "jsonpath={.items[0].metadata.name}")
+    kubectl patch service $VRNSH_SVC --patch '{"spec": { "selector": { "job": "maintenance", "app": null, "release": null } } }'
+  else
+    echo "Disable Maintenance page"
+    kubectl patch service $VRNSH_SVC --patch '{"spec": { "selector": { "app": "varnish", "job": null } } }'
+  fi
+
+}
+
+function varnish {
+  INGRESS_SVC=$(kubectl get service -l app=magento -o "jsonpath={.items[0].metadata.name}")
+  if [[ "$1" == "on" ]]; then
+    echo "Enable Varnish"
+    SVC=$(kubectl get service -l app=varnish -o "jsonpath={.items[0].metadata.name}")
+  else
+    echo "Disable Maintenance page"
+    SVC=$(kubectl get service -l app=magento -o "jsonpath={.items[0].metadata.name}")
+  fi
+
+  kubectl patch ingress $INGRESS_SVC --patch "$(kubectl get ingress $INGRESS_SVC -o yaml | sed -E 's/serviceName: .+$/serviceName: '${SVC}'/g')"
+}
+
+# Generate Magento varnish cconfiguration
+# and import it as configmap to kubernetes
+# On deleteing varnish POD it will read the new configuration
+# usage: magentocn magento:varnish:configure
+function varnish_configure {
+    function help {
+        cat <<EOF
+Usage magentocn magento:varnish:configuire with options
+  --timeout         Probe timeout in seconds (default 2)
+  --interval        Probe interval in seconds (default 5)
+  --window          Proble window (default 5)
+  --threshold       Probe Threshold
+EOF
+    }
+
+
+    PROBE_TIMEOUT=2
+    PROBE_INTERVAL=5
+    PROBE_WINDOW=10
+    PROBE_THRESHOLD=5
+    while getopts :-: arg; do
+      case $arg in
+        - ) LONG_OPTARG="${OPTARG#*=}"
+          case $OPTARG in
+            timeout=?*    ) PROBE_TIMEOUT="$LONG_OPTARG" ;;
+            interval=?*   ) PROBE_INTERVAL="$LONG_OPTARG" ;;
+            window=?*     ) PROBE_WINDOW="$LONG_OPTARG" ;;
+            threshold=?*  ) PROBE_THRESHOLD="$LONG_OPTARG" ;;
+            '') break ;;
+            *) help ; exit 2 ;;
+          esac ;;
+          \? ) help ; exit 2 ;;
+      esac
+    done
+
+
+    VARNISH_POD=$(kubectl get pod | grep varnish | awk '{print $1}')
+
+    VRNSH=$(mktemp)
+    VARNISH_CFG=$(kubectl get configmap | grep varnish | awk '{print $1}')
+
+    ACCESS_LIST=()
+    for address in $(kubectl get pod -l job=web -o "jsonpath={.items[*].status.podIP}"); do ACCESS_LIST+=("$address"); done
+
+    magento config:set system/full_page_cache/varnish/access_list $(IFS=,; echo ${ACCESS_LIST[*]}"")
+    magento config:set system/full_page_cache/varnish/backend_host $WWW_SERVICE
+    magento config:set system/full_page_cache/varnish/backend_port 80
+    magento config:set system/full_page_cache/varnish/grace_period 300
+    magento config:set system/full_page_cache/caching_application 2
+
+    magento varnish:vcl:generate $(for a in ${ACCESS_LIST[*]}; do echo "--access-list=$a"; done) --backend-host=$WWW_SERVICE --backend-port=80 --export-version=5 -n --ansi > $VRNSH
+
+    sed -i -e 's/\/pub\//\//g' $VRNSH
+    sed -i -E 's/\.timeout.+$/.timeout = '${PROBE_TIMEOUT}'s;/g' $VRNSH
+    sed -i -E 's/\.interval.+$/.interval = '${PROBE_INTERVAL}'s;/g' $VRNSH
+    sed -i -E 's/\.window.+$/.window = '${PROBE_WINDOW}';/g' $VRNSH
+    sed -i -E 's/\.threshold.+$/.threshold = '${PROBE_THRESHOLD}';/g' $VRNSH
+
+    kubectl delete configmap $VARNISH_CFG
+    kubectl create configmap $VARNISH_CFG --from-file=default.vcl=$VRNSH
+    # POD deletetion will perform a restart of the container
+    kubectl delete pod $VARNISH_POD
+
+}
+
+function magento_cleancache {
+  rm -rf ${DOCUMENT_ROOT}/generate/code/*
+  rm -rf ${DOCUMENT_ROOT}/var/session/*
+
+  /usr/local/bin/magento cache:clean
+}
+
+function magento_log_report {
+  cat ${DOCUMENT_ROOT}/var/report/$1
+}
+
+function fixpermissions {
+  chown www-data:www-data -R ${DOCUMENT_ROOT}
+}
+
+case $1 in
+  "magento:varnish") varnish $2 ;;
+  "magento:varnish:configure") shift ; varnish_configure $@ ;;
+  "magento:maintenance") magento_maintenance $2 ;;
+  "fixpermissions") fixpermissions ;;
+  "magento:cleancache") magento_cleancache ;;
+  "magento:log:report") magento_log_report $2 ;;
+  *) print_help ;;
+esac

@@ -1,0 +1,1 @@
+../../shared_steps/magento_bootstrap.sh
