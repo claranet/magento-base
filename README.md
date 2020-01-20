@@ -10,7 +10,7 @@ These Images are designed to be a base image for the final Magento Image. This b
 
 Example Agency Dockerfile:
 
-    FROM claranet/magento-base:php-7.1.0
+    FROM claranet/magento-base:latest
     ENV MAGENTO_VERSION=2.2.1
     COPY ./src $APP_HOME
     RUN chown -R www-data:www-data ${APP_HOME}
