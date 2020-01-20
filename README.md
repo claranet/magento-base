@@ -15,13 +15,6 @@ Example Agency Dockerfile:
     COPY ./src $APP_HOME
     RUN chown -R www-data:www-data ${APP_HOME}
 
-## Build Images
-
-NOTE: To get changes in the magento-base Image on kubernetes you have to build both Images, the default docker Image at first!
-
-    docker build -t registry.eu.clara.net/de-docker-images/magento-base:php-7.0.8 .
-    docker build -f kubernetes/Dockerfile -t registry.eu.clara.net/de-docker-images/magento-base/kubernetes:php-7.0.8 kubernetes/
-
 ## Hooks
 
 ### CRON
@@ -75,4 +68,3 @@ ___magento___ - MagnetoCLI wrapper for Kubernetes
 # Build
 
     docker build -t claranet/magento-base .
-    
