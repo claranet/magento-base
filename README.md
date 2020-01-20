@@ -39,32 +39,6 @@ Default: 00_default.sh
 
 Creates some default directories on fresh installation
 
-## Script Collections
-
-Some scripts are included to the Images. Note that Kubernetes and Helm expect some of this scripts!
-
-### Base Image
-
-___cache-warmer___ - 
-
-___docker-magento-entrypoint___ - Default entrypoint on image startup - It will do nothing special. It is reserverved to overide by Magento Developer
-
-___docker-magento-upgrade___ - Default upgrade script - It will set Magento to maintenance mode, flush caches and do a database upgrade over MagentoCLI
-
-___magento___ - Just a small MagentoCLI wrapper to place on /usr/local/bin
-
-___magento-cron___ - Magento CRON wrappe to place in /usr/local/bin - Default it will call `magento cron:run` to execute Magento Jobs. It is reserved to override by Magento Developer
-
-___kubernetes-magento-build (UNDER CONSTRUCTION)___ - Used to build static PHP-Files
-
-___kubernetes-magento-entrypoint___ - Default Entrypoint for kubernetes
-
-___kubernetes-magento-install___ - Magento Install routines for Kubernetes - By Default it will be called by helm during first installation
-
-___kubernetes-magento-upgrade___ - Magento Upgrade routines for Kubernetes . By Default it will be called by helm during a upgrade
-
-___magento___ - MagnetoCLI wrapper for Kubernetes
-
 # Build
 
     docker build -t claranet/magento-base .
