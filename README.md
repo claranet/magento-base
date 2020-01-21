@@ -10,32 +10,55 @@ These Images are designed to be a base image for the final Magento Image. This b
 
 Example Agency Dockerfile:
 
-    FROM claranet/magento-base:latest
-    ENV MAGENTO_VERSION=2.2.1
-    COPY ./src $APP_HOME
-    RUN chown -R www-data:www-data ${APP_HOME}
+```Dockerfile
+FROM claranet/magento-base:latest  # Extend from latest base image
+ENV MAGENTO_VERSION=2.2.1          # Set ENV Variables
+COPY . /app/public/                # Copy the sourcecode
+````
+
+```bash
+docker build -t myshop:latest .
+```
+
 
 ## Hooks
 
+The baseimage delivers sime entrypoints to run magento in different mode such as cron, install upgrade etc.
+This entrypoints are designed to override or extend by user. We only delivers some default scripts here.
+
+You can override or exend by placing a script-file into the given folder below during build the image.
+
+### Magento NGINX
+
+Path: /app/docker/start.d/nginx/
+
+Default: [500_magento.sh](docker/start.d/500_magento.sh)
+
+### Magento PHPFPM
+
+Path: /app/docker/start.d/phpfpm/
+
+Default: [500_magento.sh](docker/start.d/500_magento.sh)
+
 ### CRON
 
-Path: /docker/magento.d/cron/
+Path: /app/docker/magento.d/cron/
 
-Default: 50_default.sh
+Default: [00_init.sh](docker/magento.d/cron/00_init.sh), [50_default.sh](docker/magento.d/cron/50_default.sh)
 
 Per default only `magento cron:run` is called
 
 ### Upgrade
 
-Path: /docker/magento.d/upgrade/
+Path: /app/docker/magento.d/upgrade/
 
 Default: none
 
 ### Install
 
-Path: /docker/magento.d/install
+Path: /app/docker/magento.d/install
 
-Default: 00_default.sh
+Default: [00_default.sh](docker/magento.d/install/00_default.sh)
 
 Creates some default directories on fresh installation
 
