@@ -1,6 +1,8 @@
 
 set -x
 
+if [ -d /var/run/secrets/kubernetes.io ]; then
+
 export NAMESPACE="default"
 [ -f /var/run/secrets/kubernetes.io/serviceaccount/namespace ] && export NAMESPACE=`cat /var/run/secrets/kubernetes.io/serviceaccount/namespace`
 
@@ -17,3 +19,5 @@ fi
 
 kubectl -n ${NAMESPACE} get configmap magento-app--etc -o jsonpath="{.data.env\.php}" > ${DOCUMENT_ROOT}/app/etc/env.php
 chown www-data:www-data ${DOCUMENT_ROOT}/app/etc/env.php
+
+fi
