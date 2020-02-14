@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  magento:
+    image: magento
+    build: .
+    command: ["start", "nginx", "magento"]
+    env_file: .env
+    depends_on:
+      - magento-phpfpm
+      - database
+    ports:
+      - 8080:80
+
+  magento-phpfpm:
+    image: magento
+    build: .
+    command: ["start", "phpfpm"]
+    env_file: .env
+    depends_on:
+      - database
+
+  database:
+    image: mariadb
+    env_file: .env
