@@ -2,6 +2,8 @@ FROM claranet/magento-base:php-7.3.12
 
 ENV MAGENTO_VERSION="2.3.3"
 ENV PHP_INI_MEMORY_LIMIT="2048M"
+ENV PHP_INI_ALLOW_URL_FOPEN="1"
+
 ENV MAGE_MODE=production
 
 SHELL ["/bin/bash", "-c"]
@@ -18,9 +20,12 @@ RUN curl -sL -o /tmp/magento-sampledata.tar.gz "https://github.com/magento/magen
  && rm /tmp/magento-sampledata.tar.gz
 
 RUN cd ${DOCUMENT_ROOT} \
- && composer install --no-dev
+ && composer install --no-dev \
+ && composer require divante/magento2-vsbridge-indexer
 
-RUN php /app/public/bin/magento setup:install --base-url http://127.0.0.1:8080 \
+RUN chown -R www-data:www-data ${DOCUMENT_ROOT}
+
+RUN magento setup:install --base-url http://127.0.0.1:8080 \
                           --db-host database \
                           --db-user magento \
                           --db-password magento \
@@ -32,10 +37,8 @@ RUN php /app/public/bin/magento setup:install --base-url http://127.0.0.1:8080 \
                           --admin-lastname Admin \
                           --cleanup-database
 
-RUN php /app/public/bin/magento setup:di:compile
-RUN php /app/public/bin/magento setup:static-content:deploy
-
-RUN chown -R www-data:www-data ${DOCUMENT_ROOT}
+RUN magento setup:di:compile
+RUN magento setup:static-content:deploy
 
 COPY magento.nginx.conf /etc/nginx/sites-available/magento.conf
-
+COPY magento_upgrade.sh /app/docker/magento.d/upgrade/50_upgrade.sh

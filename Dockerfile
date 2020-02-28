@@ -1,4 +1,4 @@
-ARG PHP_VERSION=7.1.27
+ARG PHP_VERSION=7.3.12
 FROM claranet/php:1.1-php${PHP_VERSION}
 
 ENV PHPFPM_HOST=localhost \
@@ -6,7 +6,7 @@ ENV PHPFPM_HOST=localhost \
 
 ENV MAGE_ROOT=$DOCUMENT_ROOT
 
-RUN apt-get update && apt-get install -y tree vim redis-tools mysql-client netcat curl iputils-ping less python3 \
+RUN apt-get update && apt-get install -y tree vim redis-tools mysql-client netcat curl iputils-ping less python3 rsyslog \
  && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -39,6 +39,7 @@ RUN mkdir -p ${DOCUMENT_ROOT}/app/etc/
 
 RUN chown www-data:www-data /kubernetes/nfs/ ${DOCUMENT_ROOT} ${WORKDIR}/data
 
+COPY rsyslog.conf /etc/rsyslog.conf
 COPY conf/sites-available/magento.conf ${NGINX_SITES_AVAILABLE}/magento.conf
 COPY conf/conf.d/fastcgi_params.conf /etc/nginx/fastcgi_params
 COPY conf/magento-php.ini ${PHP_INI_DIR}/magento-php.ini
