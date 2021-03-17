@@ -1,6 +1,8 @@
 #!/bin/bash
 
-PHP_VERSION=${PHP_VERSION:-7.3.27}
+PUSH_IMAGE=${PUSH_IMAGE:-1}
+BASE_VERSION=1.1.0
+PHP_VERSIONS=(7.3.27)
 IMAGE_NAME=claranet/magento-base
 
 build_phpbase() {
@@ -16,23 +18,32 @@ build_phpbase() {
 
 build_magentobase() {
   echo "BUILD IMAGE FOR PHP ${PHP_VERSION}"
-  docker build --tag ${IMAGE_NAME}:php-${PHP_VERSION} \
+  docker build --tag $(IFS=,; echo "${IMAGE_TAGS}") \
                --build-arg FROM_IMAGE=local/claranet/php:1.1.48-php${PHP_VERSION} \
                --build-arg PHP_VERSION \
                 .
 }
 
+push_image() {
+  
+
+  for IMAGE_TAG in ${IMAGE_TAGS[@]}; do
+    if [[ "${PUSH_IMAGE}" -eq "1" ]]
+    then
+      docker push ${IMAGE_TAG}
+    else
+      echo "Push Image - docker push ${IMAGE_TAG}"
+  fi
+
+  done
+}
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+
+IMAGE_TAGS=(  "${IMAGE_NAME}:php-${PHP_VERSION}" \
+              "${IMAGE_NAME}:${BASE_VERSION}-php-${PHP_VERSION}" )
+
 build_phpbase 
 build_magentobase
+push_image
 
-cat <<EOF
-
----
-
-To push the Image run
-$ docker push ${IMAGE_NAME}:php-${PHP_VERSION}
-
-To Tag as latest
-$ docker tag ${IMAGE_NAME}:php-${PHP_VERSION} ${IMAGE_NAME}:latest
-$ docker push ${IMAGE_NAME}:latest
-EOF
+done
