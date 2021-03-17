@@ -39,7 +39,7 @@ RUN mkdir -p ${DOCUMENT_ROOT}/app/etc/
 
 RUN chown www-data:www-data /kubernetes/nfs/ ${DOCUMENT_ROOT} ${WORKDIR}/data
 
-COPY rsyslog.conf /etc/rsyslog.conf
+COPY conf/rsyslog.conf /etc/rsyslog.conf
 COPY conf/sites-available/magento.conf ${NGINX_SITES_AVAILABLE}/magento.conf
 COPY conf/conf.d/fastcgi_params.conf /etc/nginx/fastcgi_params
 COPY conf/magento-php.ini ${PHP_INI_DIR}/magento-php.ini

@@ -10,7 +10,6 @@ echo "Use Namespace: ${NAMESPACE}"
 
 echo "Create Symlinks..."
 rm -rf $DOCUMENT_ROOT/pub/media && ln -s /kubernetes/nfs/$NAMESPACE/pub/media $DOCUMENT_ROOT/pub/media
-rm -rf $DOCUMENT_ROOT/var/report && ln -s /kubernetes/nfs/$NAMESPACE/var/report $DOCUMENT_ROOT/var/report
 
 if [ "${USE_SHARED_STATICS}" == "True" ]; then
 echo "Use shared static ... create symlink"
@@ -21,3 +20,6 @@ kubectl -n ${NAMESPACE} get configmap magento-app--etc -o jsonpath="{.data.env\.
 chown www-data:www-data ${DOCUMENT_ROOT}/app/etc/env.php
 
 fi
+
+mkdir -p --mode=777 $DOCUMENT_ROOT/var/report $DOCUMENT_ROOT/var/log
+chown www-data:www-data $DOCUMENT_ROOT/var/report $DOCUMENT_ROOT/var/log

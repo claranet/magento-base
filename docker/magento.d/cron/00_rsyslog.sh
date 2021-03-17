@@ -1,1 +1,0 @@
-../../shared_steps/rsyslog.sh
