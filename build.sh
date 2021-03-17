@@ -1,8 +1,8 @@
 #!/bin/bash
 
-PHP_VERSIONS=(7.3.12 7.1.27)
+PHP_VERSIONS=(7.3.13)
 IMAGE_NAME=claranet/magento-base
-LATEST_TAG=7.3.12
+LATEST_TAG=7.3.13
 
 for v in ${PHP_VERSIONS[@]}; do
   echo "BUILD IMAGE FOR PHP $v"
