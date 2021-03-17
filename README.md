@@ -64,4 +64,7 @@ Creates some default directories on fresh installation
 
 # Build
 
-    docker build -t claranet/magento-base .
+The Build-Process will checkout the claranet/php project and build the php base
+image with the given Version. Than the magento base image is build
+
+    PHP_VERSION=7.3.27 ./build.sh

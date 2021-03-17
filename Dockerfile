@@ -1,4 +1,7 @@
-FROM claranet/php:1.1.48-php7.3.13
+ARG PHP_VERSION=7.3.13
+ARG FROM_IMAGE=claranet/php:1.1.48-php${PHP_VERSION}
+
+FROM ${FROM_IMAGE}
 
 ENV PHPFPM_HOST=localhost \
     PHPFPM_PORT=9000
@@ -23,7 +26,8 @@ RUN apt-get install -y \
 
 RUN case "${PHP_VERSION}" in \
     7.1.*) docker-php-ext-install mcrypt ;; \
-    7.2.*) pecl install mcrypt-1.0.1  && docker-php-ext-enable mcrypt;; \
+    7.2.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
+    7.3.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
   esac
 
 # Install Composer
