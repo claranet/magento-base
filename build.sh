@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PUSH_IMAGE=${PUSH_IMAGE:-1}
-BASE_VERSION=1.1.0
+BASE_VERSION=1.1.1
 PHP_VERSIONS=(7.3.27)
 IMAGE_NAME=claranet/magento-base
 
