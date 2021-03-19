@@ -25,8 +25,6 @@ build_magentobase() {
 }
 
 push_image() {
-  
-
   for IMAGE_TAG in ${IMAGE_TAGS[@]}; do
     if [[ "${PUSH_IMAGE}" -eq "1" ]]
     then

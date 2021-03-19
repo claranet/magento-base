@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sectionText "START Magento Bootstrap"
+echo "START Magento Bootstrap"
 
 set -x
 
@@ -9,13 +9,13 @@ if [ -d /var/run/secrets/kubernetes.io ]; then
   export NAMESPACE="default"
   [ -f /var/run/secrets/kubernetes.io/serviceaccount/namespace ] && export NAMESPACE=`cat /var/run/secrets/kubernetes.io/serviceaccount/namespace`
 
-  sectionText "Use Namespace: ${NAMESPACE}"
+  echo "Use Namespace: ${NAMESPACE}"
 
-  sectionText "Create Symlinks..."
+  echo "Create Symlinks..."
   rm -rf $DOCUMENT_ROOT/pub/media && ln -s /kubernetes/nfs/$NAMESPACE/pub/media $DOCUMENT_ROOT/pub/media
 
   if [ "${USE_SHARED_STATICS}" == "True" ]; then
-    sectionText "Use shared static ... create symlink"
+    echo "Use shared static ... create symlink"
     rm -rf $DOCUMENT_ROOT/pub/static && ln -s /kubernetes/nfs/$NAMESPACE/pub/static $DOCUMENT_ROOT/pub/static
   fi
 
@@ -27,4 +27,4 @@ fi
 mkdir -p --mode=777 $DOCUMENT_ROOT/var/report $DOCUMENT_ROOT/var/log
 chown www-data:www-data $DOCUMENT_ROOT/var/report $DOCUMENT_ROOT/var/log
 
-sectionText "END Magento Bootstrap"
+echo "END Magento Bootstrap"

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-sectionText "Start rsyslogd"
+echo "Start rsyslogd"
 rsyslogd
