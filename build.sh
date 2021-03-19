@@ -18,10 +18,18 @@ build_phpbase() {
 
 build_magentobase() {
   echo "BUILD IMAGE FOR PHP ${PHP_VERSION}"
-  docker build $(IFS="-t "; echo "${IMAGE_TAGS}") \
+  BUILD_TAG=$1
+  docker build -t $1 \
                --build-arg FROM_IMAGE=local/claranet/php:1.1.48-php${PHP_VERSION} \
                --build-arg PHP_VERSION \
-                .
+               .
+  
+  shift
+  while [[ ! -z "$1" ]]; do
+    echo "Tag ${BUILD_TAG} to $1"
+    docker tag ${BUILD_TAG} $1
+    shift
+  done
 }
 
 push_image() {
@@ -41,7 +49,7 @@ IMAGE_TAGS=(  "${IMAGE_NAME}:php-${PHP_VERSION}" \
               "${IMAGE_NAME}:${BASE_VERSION}-php-${PHP_VERSION}" )
 
 build_phpbase 
-build_magentobase
+build_magentobase ${IMAGE_TAGS[*]}
 push_image
 
 done
