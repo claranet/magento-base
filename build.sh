@@ -1,16 +1,18 @@
 #!/bin/bash
 
 PUSH_IMAGE=${PUSH_IMAGE:-1}
-BASE_VERSION=1.1.2
+BASE_VERSION=1.1.3
 PHP_VERSIONS=(7.3.27)
+CLARA_PHP_TAG=1.1.51
 IMAGE_NAME=claranet/magento-base
 
 build_phpbase() {
   WORKDIR=$(mktemp -d)
+  
   cd ${WORKDIR}
   git clone https://github.com/claranet/php.git ./
-  git fetch
-  git checkout --track origin/feature/debian-buster
+  git fetch --all --tags
+  git checkout ${CLARA_PHP_TAG}
   PHP_VERSION=${PHP_VERSION} FROM_IMAGE=php:${PHP_VERSION}-fpm-buster ./bin/image.sh build
   cd $OLDPWD
   rm -rf ${WORKDIR}
@@ -20,7 +22,7 @@ build_magentobase() {
   echo "BUILD IMAGE FOR PHP ${PHP_VERSION}"
   BUILD_TAG=$1
   docker build -t $1 \
-               --build-arg FROM_IMAGE=local/claranet/php:1.1.48-php${PHP_VERSION} \
+               --build-arg FROM_IMAGE=local/claranet/php:${CLARA_PHP_TAG}-php${PHP_VERSION} \
                --build-arg PHP_VERSION \
                .
   
