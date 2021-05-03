@@ -2,7 +2,11 @@
 
 echo "START Magento Bootstrap"
 
+DEBUG=${MAGENTO_DOCKER_DEBUG:-false}
+
+if [ "$DEBUG" = true ] ; then
 set -x
+fi
 
 if [ -d /var/run/secrets/kubernetes.io ]; then
 
