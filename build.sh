@@ -1,9 +1,10 @@
 #!/bin/bash
+set +x
 
 PUSH_IMAGE=${PUSH_IMAGE:-1}
-1.1.3
-PHP_VERSIONS=(7.3.27)
-CLARA_PHP_TAG=1.1.51
+BASE_VERSION=1.1.3
+PHP_VERSIONS=(7.4.19)
+CLARA_PHP_TAG=1.1.52
 IMAGE_NAME=claranet/magento-base
 
 build_phpbase() {
@@ -13,6 +14,7 @@ build_phpbase() {
   git clone https://github.com/claranet/php.git ./
   git fetch --all --tags
   git checkout ${CLARA_PHP_TAG}
+  export PHP_EXTENSION=(gd intl pdo_mysql soap zip gd xsl bcmath sockets mcrypt) 
   PHP_VERSION=${PHP_VERSION} FROM_IMAGE=php:${PHP_VERSION}-fpm-buster ./bin/image.sh build
   cd $OLDPWD
   rm -rf ${WORKDIR}

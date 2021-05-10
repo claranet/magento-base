@@ -3,7 +3,7 @@ ARG FROM_IMAGE=claranet/php:1.1.48-php${PHP_VERSION}
 
 FROM ${FROM_IMAGE}
 
-LABEL 1.1.3 \
+LABEL claranet.magento-base.version="1.1.3" \
       claranet.magento-base.author="Martin Weber"
 
 ENV PHPFPM_HOST=localhost \
@@ -13,25 +13,6 @@ ENV MAGE_ROOT=$DOCUMENT_ROOT
 
 # Install required tools
 RUN apt-get update && apt-get install -y tree vim redis-tools default-mysql-client netcat curl iputils-ping less python3 rsyslog
-
-# Install Magento Dependencies and required libraries
-RUN apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libzip-dev \
-        libpng-dev \
-        libxslt1-dev \
-        libicu-dev \
-        mcrypt \
- && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
- && docker-php-ext-install intl pdo_mysql soap zip gd xsl bcmath sockets
-
-RUN case "${PHP_VERSION}" in \
-    7.1.*) docker-php-ext-install mcrypt ;; \
-    7.2.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
-    7.3.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
-  esac
 
 # Install Composer
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
