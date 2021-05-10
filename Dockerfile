@@ -3,7 +3,7 @@ ARG FROM_IMAGE=claranet/php:1.1.48-php${PHP_VERSION}
 
 FROM ${FROM_IMAGE}
 
-LABEL 1.1.3 \
+LABEL claranet.magento-base.version="1.1.3" \
       claranet.magento-base.author="Martin Weber"
 
 ENV PHPFPM_HOST=localhost \
@@ -31,6 +31,7 @@ RUN case "${PHP_VERSION}" in \
     7.1.*) docker-php-ext-install mcrypt ;; \
     7.2.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
     7.3.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
+    7.4.*) pecl install mcrypt  && docker-php-ext-enable mcrypt;; \
   esac
 
 # Install Composer
