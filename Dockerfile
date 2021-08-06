@@ -3,7 +3,7 @@ ARG FROM_IMAGE=claranet/php:1.1.48-php${PHP_VERSION}
 
 FROM ${FROM_IMAGE}
 
-LABEL claranet.magento-base.version="1.1.4" \
+LABEL claranet.magento-base.version="1.1.5" \
       claranet.magento-base.author="Martin Weber"
 
 ENV PHPFPM_HOST=localhost \
