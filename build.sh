@@ -4,7 +4,7 @@ set +x
 PUSH_IMAGE=${PUSH_IMAGE:-1}
 BASE_VERSION=1.1.4
 PHP_VERSIONS=(7.3.27 7.4.19)
-CLARA_PHP_TAG=1.1.52
+CLARA_PHP_TAG=${CLARA_PHP_TAG:-1.1.57}
 IMAGE_NAME=claranet/magento-base
 
 build_phpbase() {
